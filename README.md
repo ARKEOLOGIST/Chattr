@@ -1,46 +1,172 @@
-# Getting Started with Create React App
+# Teleparty Chat Application
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A real-time chat application built with React, TypeScript, and Firebase. This application provides persistent message storage, real-time synchronization, and seamless cross-device access.
+
+## Features
+
+- **Real-time Messaging**: Instant message delivery using WebSocket connections
+- **Persistent Storage**: Messages stored in Firebase Firestore for cross-session persistence
+- **Room Management**: Create and join chat rooms with unique IDs
+- **Typing Indicators**: See when other users are typing
+- **Cross-device Sync**: Access chat history from any device
+- **Offline Support**: Built-in offline capabilities with Firebase
+- **Message Migration**: Automatic migration from local storage to Firebase
+
+## Tech Stack
+
+- **Frontend**: React 19, TypeScript, Chakra UI
+- **Backend**: Firebase Firestore
+- **Real-time**: Teleparty WebSocket Library
+- **Local Storage**: IndexedDB (with Dexie.js)
+- **Styling**: Chakra UI with Emotion
+
+## Quick Start
+
+### 1. Install Dependencies
+
+```bash
+npm install
+```
+
+### 2. Firebase Setup
+
+Before running the application, you need to set up Firebase:
+
+1. Follow the detailed instructions in [FIREBASE_SETUP.md](./FIREBASE_SETUP.md)
+2. Create a `.env` file with your Firebase configuration
+3. Enable Firestore Database in your Firebase project
+
+### 3. Run the Application
+
+```bash
+npm start
+```
+
+Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
 ## Available Scripts
 
-In the project directory, you can run:
-
 ### `npm start`
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
-
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+Runs the app in development mode. The page will reload if you make edits.
 
 ### `npm test`
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Launches the test runner in interactive watch mode.
 
 ### `npm run build`
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Builds the app for production to the `build` folder. The build is optimized for best performance.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### `npm run deploy`
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Deploys the application to GitHub Pages (requires `gh-pages` setup).
 
-### `npm run eject`
+## Project Structure
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+```
+src/
+├── components/          # React components
+│   ├── ui/             # UI components (toaster, etc.)
+│   ├── ChatScreen.tsx  # Main chat interface
+│   ├── MessageList.tsx # Message display component
+│   └── ...
+├── hooks/              # Custom React hooks
+│   ├── useTelepartyChat.ts    # Main chat logic
+│   ├── useUsernameValidation.ts
+│   └── useClipboard.ts
+├── services/           # External service integrations
+│   ├── firebaseService.ts     # Firebase Firestore operations
+│   └── database.ts            # IndexedDB operations
+├── config/             # Configuration files
+│   └── firebase.ts     # Firebase configuration
+└── App.tsx            # Main application component
+```
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## How It Works
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+1. **Connection**: Users connect via WebSocket using the Teleparty library
+2. **Room Management**: Create or join rooms with unique IDs
+3. **Message Flow**: 
+   - Messages sent via WebSocket for real-time delivery
+   - Simultaneously saved to Firebase for persistence
+   - Real-time listeners update all connected clients
+4. **Storage Strategy**:
+   - Primary: Firebase Firestore (cloud storage)
+   - Fallback: IndexedDB (local storage)
+   - Automatic migration from local to cloud storage
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+## Firebase Integration
+
+The application uses Firebase Firestore for:
+
+- **Message Storage**: All chat messages with metadata
+- **Room Management**: Room information and participant tracking
+- **Real-time Updates**: Live synchronization across all clients
+- **Offline Support**: Automatic offline/online handling
+
+See [FIREBASE_SETUP.md](./FIREBASE_SETUP.md) for detailed setup instructions.
+
+## Development
+
+### Environment Variables
+
+Create a `.env` file in the project root:
+
+```env
+REACT_APP_FIREBASE_API_KEY=your_api_key
+REACT_APP_FIREBASE_AUTH_DOMAIN=your_domain
+REACT_APP_FIREBASE_PROJECT_ID=your_project_id
+REACT_APP_FIREBASE_STORAGE_BUCKET=your_bucket
+REACT_APP_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+REACT_APP_FIREBASE_APP_ID=your_app_id
+```
+
+### Local Development with Firebase Emulator
+
+For local development without affecting production data:
+
+```bash
+# Install Firebase CLI
+npm install -g firebase-tools
+
+# Start Firestore emulator
+firebase emulators:start --only firestore
+
+# Set environment variable
+REACT_APP_USE_FIREBASE_EMULATOR=true
+```
+
+## Deployment
+
+The application can be deployed to various platforms:
+
+### GitHub Pages
+```bash
+npm run deploy
+```
+
+### Vercel, Netlify, etc.
+Build the project and deploy the `build` folder:
+```bash
+npm run build
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
+
+## License
+
+This project is open source and available under the [MIT License](LICENSE).
 
 ## Learn More
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+- [React Documentation](https://reactjs.org/)
+- [Firebase Documentation](https://firebase.google.com/docs)
+- [Chakra UI Documentation](https://chakra-ui.com/)
+- [TypeScript Documentation](https://www.typescriptlang.org/)
