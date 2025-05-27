@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Debug Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .log { background: #f5f5f5; padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .error { background: #ffebee; color: #c62828; }
+        .success { background: #e8f5e8; color: #2e7d32; }
+        .info { background: #e3f2fd; color: #1565c0; }
+        button { padding: 10px 20px; margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>🔧 WebSocket Connection Debug Test</h1>
+    <p>This test will help diagnose WebSocket connection issues with the Teleparty server.</p>
+    
+    <div>
+        <button onclick="testBasicWebSocket()">Test Basic WebSocket</button>
+        <button onclick="testTelepartyWebSocket()">Test Teleparty WebSocket</button>
+        <button onclick="clearLogs()">Clear Logs</button>
+    </div>
+    
+    <div id="logs"></div>
+
+    <script>
+        function log(message, type = 'info') {
+            const logs = document.getElementById('logs');
+            const logDiv = document.createElement('div');
+            logDiv.className = `log ${type}`;
+            logDiv.innerHTML = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logs.appendChild(logDiv);
+            console.log(message);
+        }
+
+        function clearLogs() {
+            document.getElementById('logs').innerHTML = '';
+        }
+
+        function testBasicWebSocket() {
+            log('🔌 Testing basic WebSocket connection to Teleparty server...', 'info');
+            
+            try {
+                const ws = new WebSocket('wss://uwstest.teleparty.com');
+                
+                ws.onopen = function(event) {
+                    log('✅ WebSocket connection opened successfully!', 'success');
+                    log('📋 Connection details: ' + JSON.stringify({
+                        readyState: ws.readyState,
+                        url: ws.url,
+                        protocol: ws.protocol
+                    }), 'info');
+                    
+                    // Try sending a test message
+                    setTimeout(() => {
+                        try {
+                            ws.send(JSON.stringify({ type: 'ping', data: { test: true } }));
+                            log('📤 Test message sent', 'info');
+                        } catch (error) {
+                            log('❌ Failed to send test message: ' + error.message, 'error');
+                        }
+                    }, 1000);
+                };
+                
+                ws.onmessage = function(event) {
+                    log('📨 Message received: ' + event.data, 'success');
+                };
+                
+                ws.onerror = function(error) {
+                    log('❌ WebSocket error: ' + JSON.stringify(error), 'error');
+                };
+                
+                ws.onclose = function(event) {
+                    log(`🔌 WebSocket closed. Code: ${event.code}, Reason: ${event.reason}, Clean: ${event.wasClean}`, 'info');
+                };
+                
+                // Close after 10 seconds
+                setTimeout(() => {
+                    if (ws.readyState === WebSocket.OPEN) {
+                        ws.close();
+                        log('🔌 Closing WebSocket connection', 'info');
+                    }
+                }, 10000);
+                
+            } catch (error) {
+                log('❌ Failed to create WebSocket: ' + error.message, 'error');
+            }
+        }
+
+        async function testTelepartyWebSocket() {
+            log('🔌 Testing TelepartyClient WebSocket connection...', 'info');
+            
+            try {
+                // Check if TelepartyClient is available
+                if (typeof window.TelepartyClient === 'undefined') {
+                    log('❌ TelepartyClient not available. Loading from CDN...', 'error');
+                    
+                    // Try to load the library
+                    const script = document.createElement('script');
+                    script.src = 'https://unpkg.com/teleparty-websocket-lib@latest/lib/index.js';
+                    script.onload = () => {
+                        log('✅ TelepartyClient library loaded', 'success');
+                        testTelepartyConnection();
+                    };
+                    script.onerror = () => {
+                        log('❌ Failed to load TelepartyClient library', 'error');
+                    };
+                    document.head.appendChild(script);
+                } else {
+                    testTelepartyConnection();
+                }
+            } catch (error) {
+                log('❌ Error testing TelepartyClient: ' + error.message, 'error');
+            }
+        }
+
+        function testTelepartyConnection() {
+            try {
+                log('🔌 Creating TelepartyClient instance...', 'info');
+                
+                const eventHandler = {
+                    onMessage: (message) => {
+                        log('📨 TelepartyClient message: ' + JSON.stringify(message), 'success');
+                    },
+                    onConnectionReady: () => {
+                        log('✅ TelepartyClient connection ready!', 'success');
+                    },
+                    onClose: () => {
+                        log('🔌 TelepartyClient connection closed', 'info');
+                    }
+                };
+                
+                const client = new TelepartyClient(eventHandler);
+                log('✅ TelepartyClient created successfully', 'success');
+                
+                // Test creating a room
+                setTimeout(async () => {
+                    try {
+                        log('🏠 Attempting to create a test room...', 'info');
+                        const roomId = await client.createChatRoom('TestUser');
+                        log('✅ Room created successfully! Room ID: ' + roomId, 'success');
+                        
+                        // Clean up
+                        setTimeout(() => {
+                            client.teardown();
+                            log('🧹 TelepartyClient cleaned up', 'info');
+                        }, 5000);
+                        
+                    } catch (error) {
+                        log('❌ Failed to create room: ' + error.message, 'error');
+                    }
+                }, 2000);
+                
+            } catch (error) {
+                log('❌ Failed to create TelepartyClient: ' + error.message, 'error');
+                log('📋 Error details: ' + JSON.stringify({
+                    name: error.name,
+                    message: error.message,
+                    stack: error.stack
+                }), 'error');
+            }
+        }
+
+        // Network diagnostics
+        function checkNetworkConditions() {
+            log('🌐 Checking network conditions...', 'info');
+            
+            // Check if online
+            log('📶 Navigator online: ' + navigator.onLine, 'info');
+            
+            // Check connection type if available
+            if ('connection' in navigator) {
+                const conn = navigator.connection;
+                log('📡 Connection type: ' + conn.effectiveType, 'info');
+                log('📡 Downlink: ' + conn.downlink + ' Mbps', 'info');
+            }
+            
+            // Test basic connectivity
+            fetch('https://www.google.com/favicon.ico', { mode: 'no-cors' })
+                .then(() => log('✅ Basic internet connectivity: OK', 'success'))
+                .catch(() => log('❌ Basic internet connectivity: FAILED', 'error'));
+        }
+
+        // Run network check on load
+        window.onload = function() {
+            log('🚀 WebSocket Debug Test loaded', 'info');
+            checkNetworkConditions();
+        };
+    </script>
+</body>
+</html> 
