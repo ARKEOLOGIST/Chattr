@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { toaster, Toaster } from './components/ui/toaster';
 import {
   InitialScreen,
@@ -9,7 +9,7 @@ import {
   UsernameEntryScreen,
   ChatScreen,
 } from './components';
-import { useTelepartyChat, useUsernameValidation, useClipboard } from './hooks';
+import { useTelepartyChat, useUsernameValidation, useClipboard, useUserProfile } from './hooks';
 
 type AppState = 'initial' | 'connecting' | 'entering-username' | 'entering-room-id' | 'chat';
 
@@ -21,6 +21,40 @@ function App() {
   const [flowType, setFlowType] = useState<'create' | 'join'>('create');
   const [currentMessage, setCurrentMessage] = useState('');
   const [renderKey, setRenderKey] = useState(0);
+
+  const { validateUsername } = useUsernameValidation();
+  const { copyToClipboard } = useClipboard();
+  
+  const {
+    userProfile,
+    createUserProfile,
+    updateUserId,
+    storeReceivedUserId,
+    deleteUserProfile
+  } = useUserProfile();
+
+  // Create stable wrapper function for userId update using useRef
+  const storeReceivedUserIdRef = useRef(storeReceivedUserId);
+  const updateUserIdRef = useRef(updateUserId);
+  storeReceivedUserIdRef.current = storeReceivedUserId;
+  updateUserIdRef.current = updateUserId;
+
+  const handleUserIdUpdate = useCallback(async (newUserId: string): Promise<void> => {
+    try {
+      // If user profile exists, update it directly
+      if (userProfile) {
+        await updateUserIdRef.current(newUserId);
+        console.log('User ID updated successfully to:', newUserId);
+      } else {
+        // If no user profile yet, store the userId for later use during profile creation
+        storeReceivedUserIdRef.current(newUserId);
+        console.log('Stored received userId for later use:', newUserId);
+      }
+    } catch (error) {
+      console.error('Failed to handle user ID update:', error);
+      throw error;
+    }
+  }, [userProfile]); // Include userProfile to know when to update vs store
 
   // Custom hooks
   const {
@@ -37,10 +71,7 @@ function App() {
     createRoom,
     joinRoom,
     cleanup
-  } = useTelepartyChat();
-
-  const { validateUsername } = useUsernameValidation();
-  const { copyToClipboard } = useClipboard();
+  } = useTelepartyChat(handleUserIdUpdate);
 
   // Force re-render when transitioning to chat state
   useEffect(() => {
@@ -120,6 +151,11 @@ function App() {
     }
 
     try {
+      // Create user profile first
+      await createUserProfile({
+        username
+      });
+
       if (flowType === 'create') {
         const newRoomId = await createRoom(username);
         setRoomId(newRoomId);
@@ -139,11 +175,27 @@ function App() {
   // Handle back to initial screen (leaving room)
   const handleBackToInitial = async () => {
     cleanup();
+    
+    // Delete user profile when leaving
+    if (userProfile) {
+      try {
+        await deleteUserProfile();
+        toaster.create({ title: 'Profile deleted successfully', type: 'success' });
+      } catch (error) {
+        console.error('Failed to delete profile:', error);
+        toaster.create({ title: 'Failed to delete profile', type: 'error' });
+      }
+    }
+    
     setAppState('initial');
     setUsername('');
     setTempRoomId('');
     setRoomId('');
   };
+
+
+
+
 
   // Handle Send Message
   const handleSendMessage = async () => {
@@ -181,6 +233,8 @@ function App() {
             onJoinRoom={handleJoinRoom}
           />
         );
+
+
 
       case 'connecting':
         return (

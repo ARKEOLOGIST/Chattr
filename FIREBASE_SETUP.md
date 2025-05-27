@@ -15,7 +15,7 @@ Head over to the [Firebase Console](https://console.firebase.google.com/) and hi
 
 ---
 
-## Step 2: Set up the database
+## Step 2: Set up the database and storage
 
 Once you're in your project:
 
@@ -24,7 +24,14 @@ Once you're in your project:
 3. Choose "Start in test mode" (we'll worry about security later)
 4. Pick a location close to you
 
-That's it! Your database is ready.
+Next, set up Firebase Storage for profile pictures:
+
+1. Look for "Storage" in the sidebar
+2. Click "Get started"
+3. Choose "Start in test mode" 
+4. Use the same location as your database
+
+That's it! Your database and storage are ready.
 
 ---
 

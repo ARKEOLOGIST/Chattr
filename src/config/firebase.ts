@@ -17,12 +17,12 @@ const app = initializeApp(firebaseConfig);
 // Initialize Firestore
 export const db = getFirestore(app);
 
-// Connect to Firestore emulator in development (optional)
+// Connect to emulators in development (optional)
 if (process.env.NODE_ENV === 'development' && process.env.REACT_APP_USE_FIREBASE_EMULATOR === 'true') {
   try {
     connectFirestoreEmulator(db, 'localhost', 8080);
   } catch (error) {
-    console.log('Firestore emulator already connected');
+    console.log('Firebase emulators already connected');
   }
 }
 

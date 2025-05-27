@@ -7,4 +7,6 @@ export { ChatHeader } from './ChatHeader';
 export { MessageList } from './MessageList';
 export { MessageItem, type Message } from './MessageItem';
 export { TypingIndicator } from './TypingIndicator';
-export { MessageInput } from './MessageInput'; 
+export { MessageInput } from './MessageInput';
+
+ 

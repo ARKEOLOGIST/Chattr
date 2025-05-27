@@ -42,7 +42,7 @@ export const MessageItem: React.FC<MessageItemProps> = ({
           fontSize="sm"
           fontWeight="medium"
         >
-          <Text>{text}</Text>
+          <Text>{user} {text}</Text>
         </Box>
         <Text fontSize="xs" color="gray.500" mt={1}>
           {new Date(timestamp).toLocaleTimeString([], { 

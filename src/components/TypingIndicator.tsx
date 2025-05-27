@@ -17,13 +17,11 @@ export const TypingIndicator: React.FC<TypingIndicatorProps> = ({
 
   const getTypingText = () => {
     if (typingUsers.length === 1) {
-      return `User ${typingUsers[0]} is typing`;
+      return `${typingUsers[0]} is typing...`;
     } else if (typingUsers.length === 2) {
-      return `Users ${typingUsers[0]} and ${typingUsers[1]} are typing`;
-    } else if (typingUsers.length === 3) {
-      return `Users ${typingUsers[0]}, ${typingUsers[1]} and ${typingUsers[2]} are typing`;
+      return `${typingUsers[0]} and ${typingUsers[1]} are typing...`;
     } else {
-      return `Users ${typingUsers.slice(0, 2).join(', ')} and ${typingUsers.length - 2} others are typing`;
+      return `Several users are typing...`;
     }
   };
 

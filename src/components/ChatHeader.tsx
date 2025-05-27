@@ -5,7 +5,7 @@ import {
   Heading,
   Text,
   Flex,
-  HStack,
+  HStack
 } from '@chakra-ui/react';
 
 interface ChatHeaderProps {
@@ -19,10 +19,10 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
   roomId,
   username,
   onCopyRoomId,
-  onLeaveRoom,
+  onLeaveRoom
 }) => {
   return (
-    <Box bg="teal.500" color="white" p={4}>
+    <Box bg="teal.500" color="white" p={4} w="100%">
       <Flex align="center">
         <Box flex="1">
           <HStack mb={1}>
@@ -40,15 +40,17 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
           </HStack>
           <Text fontSize="sm" opacity={0.8}>Welcome, {username}!</Text>
         </Box>
-        <Button 
-          size="sm" 
-          variant="ghost" 
-          color="white"
-          _hover={{ bg: "whiteAlpha.200" }}
-          onClick={onLeaveRoom}
-        >
-          Leave Room
-        </Button>
+        <HStack>
+          <Button 
+            size="sm" 
+            variant="ghost" 
+            color="white"
+            _hover={{ bg: "whiteAlpha.200" }}
+            onClick={onLeaveRoom}
+          >
+            Leave Room
+          </Button>
+        </HStack>
       </Flex>
     </Box>
   );

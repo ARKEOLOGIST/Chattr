@@ -2,7 +2,7 @@
   "name": "teleparty-chat",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://chattr.github.io",
+  "homepage": "https://arkeologist.github.io/Chattr",
   "dependencies": {
     "@chakra-ui/react": "^3.19.1",
     "@emotion/react": "^11.14.0",
